@@ -7,6 +7,8 @@ class Pipe:
         self.X = x
         self.bottomY = random.randint(250, 650)
         self.topY = self.bottomY - 800
+        self.topHitbox = (self.X, self.topY, 100, 600)
+        self.bottomHitbox = (self.X, self.bottomY, 100, 600)
 
     def getTopImage(self):
         return self.topImage
@@ -23,9 +25,17 @@ class Pipe:
     def getBottomY(self):
         return self.bottomY
     
+    def getTopHitbox(self):
+        return self.topHitbox
+    
+    def getBottomHitbox(self):
+        return self.bottomHitbox
+    
     def movePipes(self):
         self.X -= 5
         if self.X < -100:
             self.X = 600
             self.bottomY = random.randint(250, 650)
             self.topY = self.bottomY - 800
+        self.topHitbox = (self.X, self.topY, 100, 612)
+        self.bottomHitbox = (self.X, self.bottomY, 100, 612)
