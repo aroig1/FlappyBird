@@ -1,6 +1,7 @@
 import pygame as py
 from bird import Bird
 from pipe import Pipe
+from scoreboard import Scoreboard
 
 class FlappyBird:
     def __init__(self):
@@ -11,6 +12,10 @@ class FlappyBird:
         self.logo = py.image.load('images/logo.png')
         self.birdImg = py.image.load('images/bird.png')
         self.background = py.image.load('images/background.png')
+
+        self.scoreboard = Scoreboard()
+        self.scoreTemplate = py.image.load(self.scoreboard.getTemplate())
+        self.font = py.font.Font('fonts/square-deal.ttf', 100)
 
         self.pipes1 = Pipe()
         self.topPipe1 = py.image.load(self.pipes1.getTopImage())
@@ -46,11 +51,16 @@ class FlappyBird:
                 if event.type == py.QUIT:
                     self.gameRunning = False
 
+            # collision / fell to bottom
             if self.DaBird.getY() > 750 or self.collision(): 
                 end = True
 
+            # jump
             if keys[py.K_SPACE]:
-                self.flyCount = -20
+                self.flyCount = -15
+
+            if 0 < self.pipes1.getX() - self.DaBird.getX() <= 5 or 0 < self.pipes2.getX() - self.DaBird.getX() <= 5:
+                self.scoreboard.addPoint()
 
             self.DaBird.updateBird(self.flyCount)
             self.flyCount += 2
@@ -64,6 +74,7 @@ class FlappyBird:
 
     def startSequence(self):
         self.flyCount = 20
+        self.scoreboard.setScore(0)
         self.DaBird = Bird()
         self.pipes1 = Pipe()
         self.pipes2 = Pipe(self.pipes1.getX() + 350)
@@ -84,7 +95,22 @@ class FlappyBird:
             self.startScreen()
 
     def endSequence(self):
-        pass
+        keys = py.key.get_pressed()
+
+        self.scoreboard.updateBest()
+        
+        while not keys[py.K_SPACE]:
+            py.time.delay(25)
+
+            keys = py.key.get_pressed()
+
+            for event in py.event.get():
+                if event.type == py.QUIT:
+                    self.gameRunning = False
+                    return
+            
+            self.endScreen()
+            
 
     def startScreen(self):
         # display background
@@ -98,14 +124,40 @@ class FlappyBird:
 
         py.display.update()
 
+    def endScreen(self):
+        # display background
+        self.screen.blit(self.background, (0, 0))
+        # display bird
+        self.screen.blit(self.birdImg, (self.DaBird.getX(), self.DaBird.getY()))
+        # display pipes
+        self.updatePipes() 
+        # display scoreboard
+        self.screen.blit(self.scoreTemplate, (25, 150))
+        # display medal
+        if self.scoreboard.getMedal() != None:
+            medal = py.image.load(self.scoreboard.getMedal())
+            self.screen.blit(medal, (75, 350))
+        # display score
+        font = py.font.Font('fonts/square-deal.ttf', 55)
+        text = font.render(str(self.scoreboard.getScore()), True, (255, 255, 255))
+        self.screen.blit(text, (400, 345))
+        # display best score
+        text2 = font.render(str(self.scoreboard.getBest()), True, (255, 255, 255))
+        self.screen.blit(text2, (400, 430))
+
+        py.display.update()
+
     def updateScreen(self):
         # display background
         self.screen.blit(self.background, (0, 0))
         # display bird
         self.screen.blit(self.birdImg, (self.DaBird.getX(), self.DaBird.getY()))
-        py.draw.rect(self.screen, (255, 0, 0), self.DaBird.getHitbox(), 2)
+        # py.draw.rect(self.screen, (255, 0, 0), self.DaBird.getHitbox(), 2) # Comment / Uncomment to show Hitbox
         # display pipes
         self.updatePipes() 
+        # display score
+        text = self.font.render(str(self.scoreboard.getScore()), True, (255, 255, 255))
+        self.screen.blit(text, (250, 100))
 
         py.display.update()
 
@@ -115,10 +167,11 @@ class FlappyBird:
         self.screen.blit(self.topPipe2, (self.pipes2.getX(), self.pipes2.getTopY()))
         self.screen.blit(self.bottomPipe2, (self.pipes2.getX(), self.pipes2.getBottomY()))
 
-        py.draw.rect(self.screen, (255, 0, 0), self.pipes1.getTopHitbox(), 2)
-        py.draw.rect(self.screen, (255, 0, 0), self.pipes1.getBottomHitbox(), 2)
-        py.draw.rect(self.screen, (255, 0, 0), self.pipes2.getTopHitbox(), 2)
-        py.draw.rect(self.screen, (255, 0, 0), self.pipes2.getBottomHitbox(), 2)
+        # Comment / Uncomment to show Hitboxes
+        # py.draw.rect(self.screen, (255, 0, 0), self.pipes1.getTopHitbox(), 2)
+        # py.draw.rect(self.screen, (255, 0, 0), self.pipes1.getBottomHitbox(), 2)
+        # py.draw.rect(self.screen, (255, 0, 0), self.pipes2.getTopHitbox(), 2)
+        # py.draw.rect(self.screen, (255, 0, 0), self.pipes2.getBottomHitbox(), 2)
 
     def collision(self):
         birdHitbox = self.DaBird.getHitbox()
