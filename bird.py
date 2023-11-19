@@ -2,9 +2,6 @@ class Bird:
     def __init__(self):
         self.x = 100
         self.y = 300
-        self.height = 100 ## FIX
-        self.width = 50 ## FIX
-        self.vel = 0 ## FIX
         self.hitbox = (self.x + 40, self.y, 90, 50)
 
     def updateBird(self, distance):

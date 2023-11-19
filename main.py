@@ -2,6 +2,7 @@ import pygame as py
 from bird import Bird
 from pipe import Pipe
 from scoreboard import Scoreboard
+from button import Button
 
 class FlappyBird:
     def __init__(self):
@@ -16,6 +17,10 @@ class FlappyBird:
         self.scoreboard = Scoreboard()
         self.scoreTemplate = py.image.load(self.scoreboard.getTemplate())
         self.font = py.font.Font('fonts/square-deal.ttf', 100)
+        self.startBtn = Button(50, 550, 166)
+        self.startImg = py.image.load('images/start_btn.png')
+        self.exitBtn = Button(300, 550, 143)
+        self.exitImg = py.image.load('images/exit_btn.png')
 
         self.pipes1 = Pipe()
         self.topPipe1 = py.image.load(self.pipes1.getTopImage())
@@ -26,39 +31,46 @@ class FlappyBird:
         
         self.flyCount = 20
         self.gameRunning = False
-        
+        self.start = True
+        self.end = False
+
 
     def runGame(self):
         self.gameRunning = True
-        start = True
-        end = False
+        self.start = True
+        self.end = False
 
         while self.gameRunning:
             py.time.delay(25)
 
             keys = py.key.get_pressed()
 
-            if end:
+            # game over screen
+            if self.end:
                 self.endSequence()
-                end = False
-                start = True
+                self.end = False
+                self.start = True
 
-            if start:
+            # start screen
+            if self.start and self.gameRunning:
                 self.startSequence()
-                start = False
+                self.start = False
+                self.flyCOunt = -15
 
+            # Browser closed
             for event in py.event.get():
                 if event.type == py.QUIT:
                     self.gameRunning = False
 
             # collision / fell to bottom
             if self.DaBird.getY() > 750 or self.collision(): 
-                end = True
+                self.end = True
 
             # jump
-            if keys[py.K_SPACE]:
+            if keys[py.K_SPACE] or py.mouse.get_pressed()[0]:
                 self.flyCount = -15
 
+            # Update Score
             if 0 < self.pipes1.getX() - self.DaBird.getX() <= 5 or 0 < self.pipes2.getX() - self.DaBird.getX() <= 5:
                 self.scoreboard.addPoint()
 
@@ -81,7 +93,7 @@ class FlappyBird:
 
         keys = py.key.get_pressed()
         
-        while not keys[py.K_SPACE]:
+        while not keys[py.K_SPACE] and not py.mouse.get_pressed()[0]:
 
             py.time.delay(25)
 
@@ -99,7 +111,7 @@ class FlappyBird:
 
         self.scoreboard.updateBest()
         
-        while not keys[py.K_SPACE]:
+        while True:
             py.time.delay(25)
 
             keys = py.key.get_pressed()
@@ -108,6 +120,12 @@ class FlappyBird:
                 if event.type == py.QUIT:
                     self.gameRunning = False
                     return
+                elif event.type == py.MOUSEBUTTONUP and self.exitBtn.isClicked():
+                    self.gameRunning = False
+                    return
+                elif event.type == py.MOUSEBUTTONUP and self.startBtn.isClicked():
+                    return
+                        
             
             self.endScreen()
             
@@ -144,6 +162,9 @@ class FlappyBird:
         # display best score
         text2 = font.render(str(self.scoreboard.getBest()), True, (255, 255, 255))
         self.screen.blit(text2, (400, 430))
+        # Display buttons
+        self.screen.blit(self.startImg, (self.startBtn.getX(), self.startBtn.getY()))
+        self.screen.blit(self.exitImg, (self.exitBtn.getX(), self.exitBtn.getY()))
 
         py.display.update()
 

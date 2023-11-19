@@ -1,7 +1,7 @@
 class Scoreboard:
     def __init__(self):
         self.score = 0
-        self.best = 0
+        self.best = 65 # Aidan's Score
         self.medals = ['images/bronzeMedal.png', 'images/silverMedal.png']
         self.template = 'images/scoreboard.png'
 
