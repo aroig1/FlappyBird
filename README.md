@@ -1,2 +1,2 @@
 # FlappyBird
-Flappy Bird game implemented in Python using Pygame.
+Flappy Bird game implemented in Python using Pygame. This game allowed me to experiment with creating physics behind my jumping/flying, as well as creating hitboxes and dealing with collisions between objects. In addition, I created a method to randomize the location of the pipes each time they were generated. Lastly, I was able to add a scoreboard that keeps track of both your highest and current score, as well as a simple medal system that appears depending on your score.
